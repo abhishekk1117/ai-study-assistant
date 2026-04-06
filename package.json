@@ -1,0 +1,15 @@
+{
+  "name": "project-ai-assist",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root scripts for AI Study Assistant",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "start": "concurrently \"npm --prefix server run start\" \"npm --prefix client run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
