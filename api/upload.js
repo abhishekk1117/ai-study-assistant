@@ -66,25 +66,35 @@ module.exports = async (req, res) => {
     uploadMiddleware(req, res, async (error) => {
       try {
         if (error) {
+          console.error('Multer error:', error);
           res.status(400).json({ error: error.message || 'Upload failed' });
           return resolve();
         }
 
         if (!OPENAI_API_KEY) {
+          console.error('OPENAI_API_KEY not set');
           res.status(500).json({ error: 'Missing OPENAI_API_KEY on server.' });
           return resolve();
         }
 
         if (!req.file) {
+          console.error('No file in request');
           res.status(400).json({ error: 'No file uploaded.' });
           return resolve();
         }
 
+        console.log('Processing file:', req.file.filename);
         const fileBuffer = await fs.readFile(req.file.path);
+        console.log('File read, size:', fileBuffer.length);
+        
         const extractedText = await extractPdfText(fileBuffer);
+        console.log('PDF extracted, text length:', extractedText.length);
+        
         const chunks = chunkTextByWords(extractedText, 500);
+        console.log('Chunks created:', chunks.length);
 
         if (!chunks.length) {
+          console.error('No chunks extracted from PDF');
           res.status(400).json({ error: 'No readable text found in this PDF.' });
           return resolve();
         }
@@ -98,6 +108,7 @@ module.exports = async (req, res) => {
           try {
             embedding = await embedText(chunk);
           } catch (embError) {
+            console.warn(`Embedding failed for chunk ${i}:`, embError.message);
             if (!(ALLOW_QUOTA_FALLBACK && isQuotaError(embError))) {
               throw embError;
             }
@@ -114,9 +125,11 @@ module.exports = async (req, res) => {
           });
         }
 
+        console.log('Embedded chunks:', embeddedChunks.length);
         const store = await loadStore();
         store.chunks.push(...embeddedChunks);
         await saveStore(store);
+        console.log('Store saved, total chunks:', store.chunks.length);
 
         // Clean up uploaded file
         try {
@@ -135,7 +148,7 @@ module.exports = async (req, res) => {
         });
         resolve();
       } catch (error) {
-        console.error('Upload error:', error);
+        console.error('Upload handler error:', error);
         res.status(500).json({ error: error.message || 'Upload failed.' });
         resolve();
       }
