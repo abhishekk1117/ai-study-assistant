@@ -1,12 +1,6 @@
 {
   "buildCommand": "npm install && npm --prefix client run build",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install && npm --prefix server install",
-  "env": {
-    "OPENAI_API_KEY": "@openai_api_key",
-    "OPENAI_CHAT_MODEL": "gpt-4o-mini",
-    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small",
-    "ALLOW_QUOTA_FALLBACK": "true"
-  },
+  "installCommand": "npm install && npm --prefix api install",
   "regions": ["sfo1"]
 }
