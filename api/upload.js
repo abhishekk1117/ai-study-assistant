@@ -1,3 +1,6 @@
+// Setup polyfills FIRST before any other requires
+require('./polyfills');
+
 const multer = require('multer');
 const fs = require('fs/promises');
 const path = require('path');

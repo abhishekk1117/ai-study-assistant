@@ -1,3 +1,6 @@
+// Setup polyfills FIRST before any other requires
+require('./polyfills');
+
 const OpenAI = require('openai');
 const {
   cosineSimilarity,
