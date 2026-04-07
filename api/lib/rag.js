@@ -1,4 +1,5 @@
 const pdfParse = require('pdf-parse');
+const PDFParse = pdfParse.PDFParse || pdfParse;
 
 function chunkTextByWords(text, chunkSize = 500) {
   const words = text.replace(/\s+/g, ' ').trim().split(' ');
@@ -18,8 +19,10 @@ function chunkTextByWords(text, chunkSize = 500) {
 
 async function extractPdfText(fileBuffer) {
   try {
-    const data = await pdfParse(fileBuffer);
-    return data?.text || '';
+    const parser = new PDFParse({ data: fileBuffer });
+    // PDFParse extracts text to the text property
+    const text = parser.text || '';
+    return text;
   } catch (error) {
     throw new Error(`Failed to extract PDF text: ${error.message}`);
   }
