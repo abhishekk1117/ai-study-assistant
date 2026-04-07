@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm --prefix client run build",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install && npm --prefix api install",
+  "installCommand": "npm install && npm --prefix client install && npm --prefix api install",
   "regions": ["sfo1"]
 }
