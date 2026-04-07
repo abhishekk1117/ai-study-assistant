@@ -3,7 +3,9 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import './App.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+// On Vercel: uses /api/* routes (same domain)
+// Locally: uses http://localhost:4000 for dev server
+const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:4000' : '/api')
 const STORAGE_KEYS = {
   messages: 'aiStudyAssistant.messages',
   uploadState: 'aiStudyAssistant.uploadState',

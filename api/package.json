@@ -1,0 +1,12 @@
+{
+  "name": "project-ai-assist-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "multer": "^2.1.1",
+    "openai": "^6.33.0",
+    "pdf-parse": "^2.4.5"
+  }
+}
