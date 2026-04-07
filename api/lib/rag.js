@@ -1,4 +1,45 @@
-const pdfParseLib = require('pdf-parse');
+// Polyfill canvas for serverless environments before loading pdf-parse
+if (typeof global !== 'undefined' && !global.canvas) {
+  if (typeof DOMMatrix === 'undefined') {
+    global.DOMMatrix = class DOMMatrix {
+      constructor(init) {
+        this.a = init?.[0] || 1;
+        this.b = init?.[1] || 0;
+        this.c = init?.[2] || 0;
+        this.d = init?.[3] || 1;
+        this.e = init?.[4] || 0;
+        this.f = init?.[5] || 0;
+      }
+    };
+  }
+  if (typeof ImageData === 'undefined') {
+    global.ImageData = class ImageData {
+      constructor(data, width, height) {
+        this.data = data;
+        this.width = width;
+        this.height = height;
+      }
+    };
+  }
+  if (typeof Path2D === 'undefined') {
+    global.Path2D = class Path2D {
+      constructor() {
+        this.commands = [];
+      }
+      moveTo(x, y) {
+        this.commands.push(['moveTo', x, y]);
+      }
+      lineTo(x, y) {
+        this.commands.push(['lineTo', x, y]);
+      }
+      closePath() {
+        this.commands.push(['closePath']);
+      }
+    };
+  }
+}
+
+const pdfParse = require('pdf-parse');
 
 function chunkTextByWords(text, chunkSize = 500) {
   const words = text.replace(/\s+/g, ' ').trim().split(' ');
@@ -17,24 +58,11 @@ function chunkTextByWords(text, chunkSize = 500) {
 }
 
 async function extractPdfText(fileBuffer) {
-  if (typeof pdfParseLib === 'function') {
-    const result = await pdfParseLib(fileBuffer);
-    return result?.text || '';
-  }
-
-  const PDFParseClass = pdfParseLib.PDFParse || pdfParseLib.default?.PDFParse;
-  if (!PDFParseClass) {
-    throw new Error('Unsupported pdf-parse export format.');
-  }
-
-  const parser = new PDFParseClass({ data: fileBuffer });
   try {
-    const result = await parser.getText();
-    return result?.text || '';
-  } finally {
-    if (typeof parser.destroy === 'function') {
-      await parser.destroy();
-    }
+    const data = await pdfParse(fileBuffer);
+    return data?.text || '';
+  } catch (error) {
+    throw new Error(`Failed to extract PDF text: ${error.message}`);
   }
 }
 
